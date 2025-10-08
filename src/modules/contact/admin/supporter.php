@@ -315,47 +315,59 @@ if (!empty($supporters)) {
     }
 }
 
-$xtpl = new XTemplate($op . '.tpl', NV_ROOTDIR . '/themes/' . $global_config['module_theme'] . '/modules/' . $module_file);
-$xtpl->assign('LANG', \NukeViet\Core\Language::$lang_module);
-$xtpl->assign('GLANG', \NukeViet\Core\Language::$lang_global);
-$xtpl->assign('OP_URL', $page_url);
+$tpl = new \NukeViet\Template\NVSmarty();
+$tpl->setTemplateDir(get_module_tpl_dir('supporter.tpl'));
+$tpl->assign('LANG', $nv_Lang);
+$tpl->assign('MODULE_NAME', $module_name);
+$tpl->assign('OP', $op);
+$tpl->assign('CHECKSS', md5(NV_CHECK_SESSION . '_' . $module_name . '_' . $admin_info['userid']));
+$tpl->assign('LIST', $list);
+$tpl->assign('DEPARTMENTS', $departments);
+$tpl->assign('SUPPORTERS', $supporters);
 
-if (!empty($list)) {
-    foreach ($list as $department => $supporters) {
-        $xtpl->assign('DEPARTMENT', [
-            'href' => NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=row&id=' . $department,
-            'full_name' => $departments[$department]['full_name']
-        ]);
-        if (!empty($department)) {
-            $xtpl->parse('main.list.department.href');
-            $xtpl->parse('main.list.department.href2');
-        }
 
-        foreach ($supporters as $supporter) {
-            $supporter['act_checked'] = !empty($supporter['act']) ? ' checked="checked"' : '';
-            $xtpl->assign('SUPPORTER', $supporter);
+// $xtpl = new XTemplate($op . '.tpl', NV_ROOTDIR . '/themes/' . $global_config['module_theme'] . '/modules/' . $module_file);
+// $xtpl->assign('LANG', \NukeViet\Core\Language::$lang_module);
+// $xtpl->assign('GLANG', \NukeViet\Core\Language::$lang_global);
+// $xtpl->assign('OP_URL', $page_url);
 
-            for ($i = 1; $i <= $departments[$department]['supporters']; ++$i) {
-                $xtpl->assign('WEIGHT', [
-                    'key' => $i,
-                    'sel' => $supporter['weight'] == $i ? ' selected="selected"' : '',
-                    'title' => str_pad($i, 2, '0', STR_PAD_LEFT)
-                ]);
-                $xtpl->parse('main.list.department.loop.weight');
-            }
-            $xtpl->parse('main.list.department.loop');
-        }
-        $xtpl->parse('main.list.department');
-    }
-    $xtpl->parse('main.list');
-}
 
-if (empty($supporters)) {
-    $xtpl->parse('main.show_form');
-}
+// if (!empty($list)) {
+//     foreach ($list as $department => $supporters) {
+//         $xtpl->assign('DEPARTMENT', [
+//             'href' => NV_BASE_ADMINURL . 'index.php?' . NV_LANG_VARIABLE . '=' . NV_LANG_DATA . '&' . NV_NAME_VARIABLE . '=' . $module_name . '&' . NV_OP_VARIABLE . '=row&id=' . $department,
+//             'full_name' => $departments[$department]['full_name']
+//         ]);
+//         if (!empty($department)) {
+//             $xtpl->parse('main.list.department.href');
+//             $xtpl->parse('main.list.department.href2');
+//         }
 
-$xtpl->parse('main');
-$contents = $xtpl->text('main');
+//         foreach ($supporters as $supporter) {
+//             $supporter['act_checked'] = !empty($supporter['act']) ? ' checked="checked"' : '';
+//             $xtpl->assign('SUPPORTER', $supporter);
+
+//             for ($i = 1; $i <= $departments[$department]['supporters']; ++$i) {
+//                 $xtpl->assign('WEIGHT', [
+//                     'key' => $i,
+//                     'sel' => $supporter['weight'] == $i ? ' selected="selected"' : '',
+//                     'title' => str_pad($i, 2, '0', STR_PAD_LEFT)
+//                 ]);
+//                 $xtpl->parse('main.list.department.loop.weight');
+//             }
+//             $xtpl->parse('main.list.department.loop');
+//         }
+//         $xtpl->parse('main.list.department');
+//     }
+//     $xtpl->parse('main.list');
+// }
+
+// if (empty($supporters)) {
+//     $xtpl->parse('main.show_form');
+// }
+
+// $xtpl->parse('main');
+$contents = $tpl->fetch('supporter.tpl');
 
 $page_title = $nv_Lang->getModule('supporter');
 
